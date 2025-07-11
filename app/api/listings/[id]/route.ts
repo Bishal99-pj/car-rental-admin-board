@@ -53,7 +53,6 @@ export async function PATCH(
 
     if (action === 'approve') {
       updatedListing = dataStore.approveListing(id);
-      // Log the action
       dataStore.addAuditLog({
         action: 'approve',
         adminId: admin.id,
@@ -63,7 +62,6 @@ export async function PATCH(
       });
     } else if (action === 'reject') {
       updatedListing = dataStore.rejectListing(id);
-      // Log the action
       dataStore.addAuditLog({
         action: 'reject',
         adminId: admin.id,
@@ -72,9 +70,7 @@ export async function PATCH(
         listingTitle: updatedListing?.title,
       });
     } else {
-      // Update listing data (edit action)
       updatedListing = dataStore.updateListing(id, updateData);
-      // Log the action
       dataStore.addAuditLog({
         action: 'edit',
         adminId: admin.id,

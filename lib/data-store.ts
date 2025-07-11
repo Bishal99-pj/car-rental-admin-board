@@ -1,12 +1,10 @@
 import { Listing, AuditLog } from './types';
 import { mockListings, mockAuditLogs } from './mock-data';
 
-// Global data stores (in production, this would be a database)
 class DataStore {
   private listings: Listing[] = [...mockListings];
   private auditLogs: AuditLog[] = [...mockAuditLogs];
 
-  // Listings methods
   getAllListings(): Listing[] {
     return [...this.listings];
   }
@@ -36,7 +34,6 @@ class DataStore {
     return this.updateListing(id, { status: 'rejected' });
   }
 
-  // Audit logs methods
   getAllAuditLogs(): AuditLog[] {
     return [...this.auditLogs];
   }
@@ -47,16 +44,9 @@ class DataStore {
       id: Date.now().toString(),
       timestamp: new Date(),
     };
-    this.auditLogs.unshift(newLog); // Add to beginning
+    this.auditLogs.unshift(newLog);
     return newLog;
-  }
-
-  // Reset data (for testing purposes)
-  resetData(): void {
-    this.listings = [...mockListings];
-    this.auditLogs = [...mockAuditLogs];
   }
 }
 
-// Export a singleton instance
 export const dataStore = new DataStore(); 

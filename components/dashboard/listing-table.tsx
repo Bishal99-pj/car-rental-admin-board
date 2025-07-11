@@ -22,8 +22,17 @@ export function ListingTable({ onAction }: ListingTableProps) {
   const [totalPages, setTotalPages] = useState(1);
   const [statusFilter, setStatusFilter] = useState<ListingStatus | 'all'>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   const fetchListings = async () => {
     setLoading(true);
@@ -32,7 +41,7 @@ export function ListingTable({ onAction }: ListingTableProps) {
         page: currentPage.toString(),
         limit: '10',
         ...(statusFilter !== 'all' && { status: statusFilter }),
-        ...(searchTerm && { search: searchTerm }),
+        ...(debouncedSearchTerm && { search: debouncedSearchTerm }),
       });
 
       const response = await fetch(`/api/listings?${params}`, {
@@ -53,7 +62,7 @@ export function ListingTable({ onAction }: ListingTableProps) {
 
   useEffect(() => {
     fetchListings();
-  }, [currentPage, statusFilter, searchTerm]);
+  }, [currentPage, statusFilter, debouncedSearchTerm]);
 
   const handleAction = async (listingId: string, action: 'approve' | 'reject' | 'edit') => {
     if (action === 'edit') {
@@ -71,7 +80,7 @@ export function ListingTable({ onAction }: ListingTableProps) {
 
   const getStatusBadge = (status: ListingStatus) => {
     const variants = {
-      pending: 'bg-yellow-100 text-yellow-800',
+      pending: 'bg-amber-100 text-amber-800',
       approved: 'bg-green-100 text-green-800',
       rejected: 'bg-red-100 text-red-800',
     };
@@ -120,7 +129,7 @@ export function ListingTable({ onAction }: ListingTableProps) {
       <CardContent>
         {loading ? (
           <div className="flex items-center justify-center py-8">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-600 border-t-transparent" />
           </div>
         ) : (
           <>

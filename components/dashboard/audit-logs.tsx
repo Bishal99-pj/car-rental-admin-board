@@ -47,11 +47,11 @@ export function AuditLogs() {
 
   const getActionBadge = (action: string) => {
     const variants = {
-      login: 'bg-blue-100 text-blue-800',
+      login: 'bg-amber-100 text-amber-800',
       logout: 'bg-gray-100 text-gray-800',
       approve: 'bg-green-100 text-green-800',
       reject: 'bg-red-100 text-red-800',
-      edit: 'bg-yellow-100 text-yellow-800',
+      edit: 'bg-amber-100 text-amber-800',
     };
 
     return (
@@ -108,7 +108,7 @@ export function AuditLogs() {
       <CardContent>
         {loading ? (
           <div className="flex items-center justify-center py-8">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-600 border-t-transparent" />
           </div>
         ) : (
           <>

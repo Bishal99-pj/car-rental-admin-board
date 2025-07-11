@@ -23,10 +23,8 @@ export async function POST(request: NextRequest) {
       }, { status: 401 });
     }
 
-    // Generate auth token
     const token = setAuthToken(user);
 
-    // Log the login action
     dataStore.addAuditLog({
       action: 'login',
       adminId: user.id,
@@ -49,12 +47,11 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Set HTTP-only cookie for the token
     response.cookies.set('auth-token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 60 * 60 * 24, // 24 hours
+      maxAge: 60 * 60 * 24,
     });
 
     return response;

@@ -14,15 +14,12 @@ export async function GET(request: NextRequest) {
 
     let filteredLogs = dataStore.getAllAuditLogs();
 
-    // Filter by action
     if (action) {
       filteredLogs = filteredLogs.filter(log => log.action === action);
     }
 
-    // Sort by timestamp (newest first)
     filteredLogs.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
 
-    // Calculate pagination
     const startIndex = (page - 1) * limit;
     const endIndex = startIndex + limit;
     const paginatedLogs = filteredLogs.slice(startIndex, endIndex);

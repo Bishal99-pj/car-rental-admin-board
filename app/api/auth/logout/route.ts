@@ -9,7 +9,6 @@ export async function POST() {
     
     logout();
     
-    // Log the logout action if there was a user
     if (currentUser) {
       dataStore.addAuditLog({
         action: 'logout',
@@ -23,7 +22,6 @@ export async function POST() {
       data: null,
     });
 
-    // Clear the auth cookie
     response.cookies.set('auth-token', '', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',

@@ -17,31 +17,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is already logged in by validating with server
     const checkAuth = async () => {
       try {
         const storedUser = localStorage.getItem('admin_user');
-        if (storedUser) {
-          // Validate the stored user with the server
-          const response = await fetch('/api/listings?page=1&limit=1', {
-            credentials: 'include',
-          });
-          
-          if (response.ok) {
-            // Server authentication is valid, use stored user
+        
+        const response = await fetch('/api/auth/validate', {
+          credentials: 'include',
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data?.user) {
+            const userData = data.data.user;
+            setUser(userData);
+            localStorage.setItem('admin_user', JSON.stringify(userData));
+          } else if (storedUser) {
             setUser(JSON.parse(storedUser));
-          } else {
-            // Server authentication failed, clear stored data
-            localStorage.removeItem('admin_user');
-            localStorage.removeItem('auth_token');
-            setUser(null);
           }
+        } else {
+          localStorage.removeItem('admin_user');
+          localStorage.removeItem('auth-token');
+          setUser(null);
         }
       } catch (error) {
         console.error('Auth check failed:', error);
-        // Clear stored data on error
         localStorage.removeItem('admin_user');
-        localStorage.removeItem('auth_token');
+        localStorage.removeItem('auth-token');
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -67,9 +68,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (data.success && data.data?.user) {
         setUser(data.data.user);
         localStorage.setItem('admin_user', JSON.stringify(data.data.user));
-        // Store token in localStorage for client-side access
         if (data.data.token) {
-          localStorage.setItem('auth_token', data.data.token);
+          localStorage.setItem('auth-token', data.data.token);
         }
         return true;
       } else {
@@ -92,7 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setUser(null);
       localStorage.removeItem('admin_user');
-      localStorage.removeItem('auth_token');
+      localStorage.removeItem('auth-token');
     }
   };
 

@@ -1,15 +1,12 @@
 import { User } from './types';
 import { mockUsers } from './mock-data';
 
-// Simple in-memory session storage (in production, use proper session management)
 let currentUser: User | null = null;
 
 export const authenticateUser = (email: string, password: string): User | null => {
-  // Mock authentication - in production, use proper password hashing
   const user = mockUsers.find(u => u.email === email);
   
   if (user && user.role === 'admin') {
-    // Mock password validation (admin123)
     if (password === 'admin123') {
       currentUser = user;
       return user;
@@ -38,9 +35,7 @@ export const requireAuth = (): User => {
   return currentUser;
 };
 
-// For API routes, we'll use a simple token-based approach
 export const setAuthToken = (user: User): string => {
-  // In production, use JWT tokens
   const token = Buffer.from(JSON.stringify(user)).toString('base64');
   return token;
 };

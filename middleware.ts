@@ -2,31 +2,22 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  // Check if the request is for a protected route
-  const isProtectedRoute = request.nextUrl.pathname.startsWith('/dashboard') || 
-                          request.nextUrl.pathname.startsWith('/api/listings') ||
-                          request.nextUrl.pathname.startsWith('/api/audit-logs');
-
-  // Check if the request is for the login page
+  const isProtectedRoute = request.nextUrl.pathname.startsWith('/dashboard');
   const isLoginPage = request.nextUrl.pathname === '/login';
+  const isApiRoute = request.nextUrl.pathname.startsWith('/api/');
 
-  // For API routes, we'll let them handle authentication internally
-  if (request.nextUrl.pathname.startsWith('/api/')) {
+  if (isApiRoute) {
     return NextResponse.next();
   }
 
-  // For protected routes, redirect to login if not authenticated
-  if (isProtectedRoute) {
-    // In a real app, you'd check for a valid session/token here
-    // For now, we'll let the client-side handle the redirect
-    return NextResponse.next();
+  const authToken = request.cookies.get('auth-token')?.value;
+
+  if (isProtectedRoute && !authToken) {
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // For login page, redirect to dashboard if already authenticated
-  if (isLoginPage) {
-    // In a real app, you'd check for a valid session/token here
-    // For now, we'll let the client-side handle the redirect
-    return NextResponse.next();
+  if (isLoginPage && authToken) {
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
   return NextResponse.next();
@@ -34,12 +25,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
     '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 }; 

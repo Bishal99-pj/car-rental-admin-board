@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { Button } from '@/components/ui/button';
@@ -14,9 +14,15 @@ import { Car, LogOut, User, Activity } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function DashboardPage() {
-  const { user, logout } = useAuth();
+  const { user, logout, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+
+  React.useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, authLoading, router]);
 
   const handleLogout = async () => {
     setIsLoading(true);
@@ -55,47 +61,29 @@ export default function DashboardPage() {
     }
   };
 
-  const handleResetData = async () => {
-    try {
-      const response = await fetch('/api/reset', {
-        method: 'POST',
-        credentials: 'include',
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        toast.success('Data reset successfully');
-        // Refresh the page to show updated data
-        window.location.reload();
-      } else {
-        toast.error('Failed to reset data');
-      }
-    } catch (error) {
-      toast.error('An error occurred');
-    }
-  };
-
-  if (!user) {
+  if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent mx-auto mb-4" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-600 border-t-transparent mx-auto mb-4" />
           <p>Loading...</p>
         </div>
       </div>
     );
   }
 
+  if (!user) {
+    return null;
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200">
+    <div className="min-h-screen bg-amber-50">
+      <header className="bg-white border-b border-amber-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <Car className="h-8 w-8 text-blue-600" />
+                <Car className="h-8 w-8 text-amber-600" />
                 <h1 className="text-xl font-bold text-gray-900">Car Rental Admin</h1>
               </div>
             </div>
@@ -113,16 +101,9 @@ export default function DashboardPage() {
               </div>
               <Separator orientation="vertical" className="h-6" />
               <Button
-                variant="outline"
+                variant="destructive"
                 size="sm"
-                onClick={handleResetData}
-                disabled={isLoading}
-              >
-                Reset Data
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
+                className="cursor-pointer"
                 onClick={handleLogout}
                 disabled={isLoading}
               >
@@ -134,10 +115,8 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-6">
-          {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -177,7 +156,6 @@ export default function DashboardPage() {
             </Card>
           </div>
 
-          {/* Tabs */}
           <Tabs defaultValue="listings" className="space-y-6">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="listings" className="flex items-center space-x-2">

@@ -5,7 +5,6 @@ import { ApiResponse, ListingStatus } from '@/lib/types';
 
 export async function GET(request: NextRequest) {
   try {
-    // Check authentication
     requireAuthFromRequest(request);
 
     const { searchParams } = new URL(request.url);
@@ -16,12 +15,10 @@ export async function GET(request: NextRequest) {
 
     let filteredListings = dataStore.getAllListings();
 
-    // Filter by status
     if (status) {
       filteredListings = filteredListings.filter(listing => listing.status === status);
     }
 
-    // Filter by search term
     if (search) {
       filteredListings = filteredListings.filter(listing =>
         listing.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -30,7 +27,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Calculate pagination
     const startIndex = (page - 1) * limit;
     const endIndex = startIndex + limit;
     const paginatedListings = filteredListings.slice(startIndex, endIndex);
